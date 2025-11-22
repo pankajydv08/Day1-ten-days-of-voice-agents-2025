@@ -1,4 +1,8 @@
 import logging
+import json
+import os
+from datetime import datetime
+from pathlib import Path
 
 from dotenv import load_dotenv
 from livekit.agents import (
@@ -12,8 +16,8 @@ from livekit.agents import (
     cli,
     metrics,
     tokenize,
-    # function_tool,
-    # RunContext
+    function_tool,
+    RunContext
 )
 from livekit.plugins import murf, silero, google, deepgram, noise_cancellation
 from livekit.plugins.turn_detector.multilingual import MultilingualModel
@@ -26,28 +30,131 @@ load_dotenv(".env.local")
 class Assistant(Agent):
     def __init__(self) -> None:
         super().__init__(
-            instructions="""You are a helpful voice AI assistant. The user is interacting with you via voice, even if you perceive the conversation as text.
-            You eagerly assist users with their questions by providing information from your extensive knowledge.
-            Your responses are concise, to the point, and without any complex formatting or punctuation including emojis, asterisks, or other symbols.
-            You are curious, friendly, and have a sense of humor.""",
-        )
+            instructions="""You are a friendly and enthusiastic barista at Piku Coffee, a premium coffee shop known for exceptional service and delicious beverages.
 
-    # To add tools, use the @function_tool decorator.
-    # Here's an example that adds a simple weather tool.
-    # You also have to add `from livekit.agents import function_tool, RunContext` to the top of this file
-    # @function_tool
-    # async def lookup_weather(self, context: RunContext, location: str):
-    #     """Use this tool to look up current weather information in the given location.
-    #
-    #     If the location is not supported by the weather service, the tool will indicate this. You must tell the user the location's weather is unavailable.
-    #
-    #     Args:
-    #         location: The location to look up weather information for (e.g. city name)
-    #     """
-    #
-    #     logger.info(f"Looking up weather for {location}")
-    #
-    #     return "sunny with a temperature of 70 degrees."
+Your role is to take coffee orders from customers via voice. You should:
+
+1. Greet customers warmly and introduce yourself as a Piku Coffee barista
+2. Ask about their drink preferences systematically
+3. Collect all required order information:
+   - Drink type (e.g., Latte, Cappuccino, Americano, Espresso, Mocha, Cold Brew, etc.)
+   - Size (Small, Medium, or Large)
+   - Milk preference (Whole, Skim, Oat, Almond, Soy, or None for black coffee)
+   - Any extras (e.g., Extra Shot, Whipped Cream, Vanilla Syrup, Caramel Drizzle, Chocolate Chips, etc.)
+   - Customer's name for the order
+
+4. If any information is missing, politely ask clarifying questions
+5. Once you have all the information, confirm the complete order with the customer
+6. After confirmation, use the save_order tool to finalize the order
+7. Thank the customer and let them know their order will be ready soon
+
+Be conversational, friendly, and patient. Keep responses concise since this is a voice interaction.
+Your responses should be natural and without complex formatting or punctuation including emojis or asterisks.""",
+        )
+        
+        # Initialize order state
+        self.order_state = {
+            "drinkType": None,
+            "size": None,
+            "milk": None,
+            "extras": [],
+            "name": None
+        }
+    
+    def is_order_complete(self) -> bool:
+        """Check if all required order fields are filled"""
+        return (
+            self.order_state["drinkType"] is not None and
+            self.order_state["size"] is not None and
+            self.order_state["milk"] is not None and
+            self.order_state["name"] is not None
+        )
+    
+    def get_missing_fields(self) -> list[str]:
+        """Get list of missing required fields"""
+        missing = []
+        if not self.order_state["drinkType"]:
+            missing.append("drink type")
+        if not self.order_state["size"]:
+            missing.append("size")
+        if not self.order_state["milk"]:
+            missing.append("milk preference")
+        if not self.order_state["name"]:
+            missing.append("customer name")
+        return missing
+
+    @function_tool
+    async def save_order(
+        self, 
+        context: RunContext,
+        drink_type: str,
+        size: str,
+        milk: str,
+        extras: str,
+        customer_name: str
+    ):
+        """Save the completed coffee order to a JSON file.
+        
+        Use this tool ONLY when you have collected ALL required information from the customer
+        and they have confirmed their order is correct.
+        
+        Args:
+            drink_type: Type of coffee drink (e.g., Latte, Cappuccino, Americano)
+            size: Size of the drink (Small, Medium, or Large)
+            milk: Milk preference (Whole, Skim, Oat, Almond, Soy, or None)
+            extras: Comma-separated list of extras or "None" if no extras
+            customer_name: Customer's name for the order
+        """
+        
+        logger.info(f"Saving order for {customer_name}")
+        
+        # Parse extras
+        extras_list = []
+        if extras and extras.lower() != "none":
+            extras_list = [e.strip() for e in extras.split(",") if e.strip()]
+        
+        # Create order object
+        order = {
+            "drinkType": drink_type,
+            "size": size,
+            "milk": milk,
+            "extras": extras_list,
+            "name": customer_name,
+            "timestamp": datetime.now().isoformat(),
+            "status": "pending"
+        }
+        
+        # Update internal state
+        self.order_state = {
+            "drinkType": drink_type,
+            "size": size,
+            "milk": milk,
+            "extras": extras_list,
+            "name": customer_name
+        }
+        
+        # Create orders directory if it doesn't exist
+        orders_dir = Path(__file__).parent.parent / "orders"
+        orders_dir.mkdir(exist_ok=True)
+        
+        # Generate filename with timestamp
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"order_{timestamp}.json"
+        filepath = orders_dir / filename
+        
+        # Save to JSON file
+        try:
+            with open(filepath, "w") as f:
+                json.dump(order, f, indent=2)
+            
+            logger.info(f"Order saved to {filepath}")
+            
+            return f"Perfect! Your order has been saved. Order ID: {timestamp}. Your {size} {drink_type} with {milk} milk will be ready shortly, {customer_name}!"
+        
+        except Exception as e:
+            logger.error(f"Failed to save order: {e}")
+            return f"I apologize, there was an issue saving your order. Please let a staff member know."
+
 
 
 def prewarm(proc: JobProcess):

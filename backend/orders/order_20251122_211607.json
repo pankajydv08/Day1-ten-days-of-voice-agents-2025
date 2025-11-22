@@ -1,0 +1,11 @@
+{
+  "drinkType": "Latte",
+  "size": "Small",
+  "milk": "Almond",
+  "extras": [
+    "Hazelnut Syrup"
+  ],
+  "name": "Tim",
+  "timestamp": "2025-11-22T21:16:07.253837",
+  "status": "pending"
+}
