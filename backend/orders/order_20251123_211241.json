@@ -1,0 +1,11 @@
+{
+  "drinkType": "Cappuccino",
+  "size": "Medium",
+  "milk": "Almond",
+  "extras": [
+    "Extra Vanilla Syrup"
+  ],
+  "name": "Pankaj",
+  "timestamp": "2025-11-23T21:12:41.133598",
+  "status": "pending"
+}
