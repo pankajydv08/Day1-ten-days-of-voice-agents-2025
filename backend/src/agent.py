@@ -30,130 +30,176 @@ load_dotenv(".env.local")
 class Assistant(Agent):
     def __init__(self) -> None:
         super().__init__(
-            instructions="""You are a friendly and enthusiastic barista at Piku Coffee, a premium coffee shop known for exceptional service and delicious beverages.
+            instructions="""You are a warm, supportive health and wellness companion who helps people with daily check-ins.
 
-Your role is to take coffee orders from customers via voice. You should:
+Your role is to conduct short, meaningful wellness check-ins via voice. You should:
 
-1. Greet customers warmly and introduce yourself as a Piku Coffee barista
-2. Ask about their drink preferences systematically
-3. Collect all required order information:
-   - Drink type (e.g., Latte, Cappuccino, Americano, Espresso, Mocha, Cold Brew, etc.)
-   - Size (Small, Medium, or Large)
-   - Milk preference (Whole, Skim, Oat, Almond, Soy, or None for black coffee)
-   - Any extras (e.g., Extra Shot, Whipped Cream, Vanilla Syrup, Caramel Drizzle, Chocolate Chips, etc.)
-   - Customer's name for the order
+1. Greet the person warmly and introduce yourself as their wellness companion
+2. Ask about their current state in a conversational way:
+   - How they are feeling today (mood, emotions)
+   - What their energy level is like
+   - If anything is stressing them out or on their mind
+3. Ask about their intentions and objectives for the day:
+   - What 1 to 3 things they would like to accomplish today
+   - If there is anything they want to do for themselves like rest, exercise, or hobbies
+4. Offer simple, realistic and grounded advice:
+   - Break large goals into smaller actionable steps
+   - Encourage short breaks or movement
+   - Suggest simple activities like a 5 minute walk or breathing exercise
+   - Keep advice practical and non-medical
+5. Close with a brief recap:
+   - Summarize their mood and energy
+   - Repeat back their main 1 to 3 objectives
+   - Ask if this sounds right
+6. After confirmation, use the save_check_in tool to save the session
+7. Thank them and encourage them for the day ahead
 
-4. If any information is missing, politely ask clarifying questions
-5. Once you have all the information, confirm the complete order with the customer
-6. After confirmation, use the save_order tool to finalize the order
-7. Thank the customer and let them know their order will be ready soon
-
-Be conversational, friendly, and patient. Keep responses concise since this is a voice interaction.
-Your responses should be natural and without complex formatting or punctuation including emojis or asterisks.""",
+Important guidelines:
+- This is a supportive check-in companion, NOT a clinician
+- Avoid any medical diagnosis or clinical advice
+- Keep responses conversational, warm, and concise
+- Be non-judgmental and encouraging
+- Use natural language without emojis or asterisks
+- If you have access to previous check-ins, reference them briefly to show continuity""",
         )
         
-        # Initialize order state
-        self.order_state = {
-            "drinkType": None,
-            "size": None,
-            "milk": None,
-            "extras": [],
-            "name": None
+        # Initialize check-in state
+        self.check_in_state = {
+            "mood": None,
+            "energy": None,
+            "objectives": [],
+            "stressors": None,
+            "user_name": None
         }
+        
+        # Store previous check-ins for context
+        self.previous_check_ins = []
+        
+        # Load previous check-ins on initialization
+        self._load_previous_check_ins()
     
-    def is_order_complete(self) -> bool:
-        """Check if all required order fields are filled"""
+    def _load_previous_check_ins(self) -> None:
+        """Load previous check-ins from wellness_log.json for context"""
+        try:
+            log_path = Path(__file__).parent.parent / "wellness_log.json"
+            if log_path.exists():
+                with open(log_path, "r") as f:
+                    data = json.load(f)
+                    # Get the last 2 check-ins for context
+                    self.previous_check_ins = data.get("check_ins", [])[-2:]
+                    if self.previous_check_ins:
+                        logger.info(f"Loaded {len(self.previous_check_ins)} previous check-ins")
+        except Exception as e:
+            logger.warning(f"Could not load previous check-ins: {e}")
+            self.previous_check_ins = []
+    
+    def is_check_in_complete(self) -> bool:
+        """Check if all required check-in fields are filled"""
         return (
-            self.order_state["drinkType"] is not None and
-            self.order_state["size"] is not None and
-            self.order_state["milk"] is not None and
-            self.order_state["name"] is not None
+            self.check_in_state["mood"] is not None and
+            self.check_in_state["energy"] is not None and
+            len(self.check_in_state["objectives"]) > 0
         )
     
     def get_missing_fields(self) -> list[str]:
         """Get list of missing required fields"""
         missing = []
-        if not self.order_state["drinkType"]:
-            missing.append("drink type")
-        if not self.order_state["size"]:
-            missing.append("size")
-        if not self.order_state["milk"]:
-            missing.append("milk preference")
-        if not self.order_state["name"]:
-            missing.append("customer name")
+        if not self.check_in_state["mood"]:
+            missing.append("mood")
+        if not self.check_in_state["energy"]:
+            missing.append("energy level")
+        if not self.check_in_state["objectives"]:
+            missing.append("daily objectives")
         return missing
 
     @function_tool
-    async def save_order(
+    async def save_check_in(
         self, 
         context: RunContext,
-        drink_type: str,
-        size: str,
-        milk: str,
-        extras: str,
-        customer_name: str
+        mood: str,
+        energy: str,
+        objectives: str,
+        stressors: str = "None",
+        user_name: str = "Anonymous"
     ):
-        """Save the completed coffee order to a JSON file.
+        """Save the completed wellness check-in to the wellness log.
         
-        Use this tool ONLY when you have collected ALL required information from the customer
-        and they have confirmed their order is correct.
+        Use this tool ONLY when you have collected all required information
+        and the person has confirmed the recap is correct.
         
         Args:
-            drink_type: Type of coffee drink (e.g., Latte, Cappuccino, Americano)
-            size: Size of the drink (Small, Medium, or Large)
-            milk: Milk preference (Whole, Skim, Oat, Almond, Soy, or None)
-            extras: Comma-separated list of extras or "None" if no extras
-            customer_name: Customer's name for the order
+            mood: Self-reported mood or emotional state (text description)
+            energy: Current energy level (text description or scale)
+            objectives: Comma-separated list of 1-3 daily objectives or goals
+            stressors: Optional stressors or concerns (default: "None")
+            user_name: Optional user name (default: "Anonymous")
         """
         
-        logger.info(f"Saving order for {customer_name}")
+        logger.info(f"Saving wellness check-in for {user_name}")
         
-        # Parse extras
-        extras_list = []
-        if extras and extras.lower() != "none":
-            extras_list = [e.strip() for e in extras.split(",") if e.strip()]
+        # Parse objectives
+        objectives_list = []
+        if objectives and objectives.lower() != "none":
+            objectives_list = [obj.strip() for obj in objectives.split(",") if obj.strip()]
         
-        # Create order object
-        order = {
-            "drinkType": drink_type,
-            "size": size,
-            "milk": milk,
-            "extras": extras_list,
-            "name": customer_name,
+        # Generate unique ID
+        check_in_id = datetime.now().strftime("%Y%m%d_%H%M%S")
+        
+        # Create simple summary
+        summary = f"Feeling {mood} with {energy} energy. Goals: {', '.join(objectives_list[:2])}"
+        if len(objectives_list) > 2:
+            summary += f" and {len(objectives_list) - 2} more"
+        
+        # Create check-in object
+        check_in = {
+            "id": check_in_id,
             "timestamp": datetime.now().isoformat(),
-            "status": "pending"
+            "user_name": user_name,
+            "mood": mood,
+            "energy": energy,
+            "objectives": objectives_list,
+            "stressors": stressors if stressors.lower() != "none" else None,
+            "summary": summary
         }
         
         # Update internal state
-        self.order_state = {
-            "drinkType": drink_type,
-            "size": size,
-            "milk": milk,
-            "extras": extras_list,
-            "name": customer_name
+        self.check_in_state = {
+            "mood": mood,
+            "energy": energy,
+            "objectives": objectives_list,
+            "stressors": stressors if stressors.lower() != "none" else None,
+            "user_name": user_name
         }
         
-        # Create orders directory if it doesn't exist
-        orders_dir = Path(__file__).parent.parent / "orders"
-        orders_dir.mkdir(exist_ok=True)
+        # Load or create wellness log
+        log_path = Path(__file__).parent.parent / "wellness_log.json"
         
-        # Generate filename with timestamp
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"order_{timestamp}.json"
-        filepath = orders_dir / filename
-        
-        # Save to JSON file
         try:
-            with open(filepath, "w") as f:
-                json.dump(order, f, indent=2)
+            # Load existing log or create new one
+            if log_path.exists():
+                with open(log_path, "r") as f:
+                    wellness_data = json.load(f)
+            else:
+                wellness_data = {"check_ins": []}
             
-            logger.info(f"Order saved to {filepath}")
+            # Append new check-in
+            wellness_data["check_ins"].append(check_in)
             
-            return f"Perfect! Your order has been saved. Order ID: {timestamp}. Your {size} {drink_type} with {milk} milk will be ready shortly, {customer_name}!"
+            # Save updated log
+            with open(log_path, "w") as f:
+                json.dump(wellness_data, f, indent=2)
+            
+            logger.info(f"Check-in saved to {log_path}")
+            
+            # Update the context with new check-in
+            self.previous_check_ins.append(check_in)
+            
+            return f"Your check-in has been saved! I hope you have a wonderful day ahead, {user_name}. Remember to take care of yourself!"
         
         except Exception as e:
-            logger.error(f"Failed to save order: {e}")
-            return f"I apologize, there was an issue saving your order. Please let a staff member know."
+            logger.error(f"Failed to save check-in: {e}")
+            return f"I apologize, there was an issue saving your check-in. But I'm here for you regardless!"
+
 
 
 
