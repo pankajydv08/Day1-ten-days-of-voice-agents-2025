@@ -1,3 +1,28 @@
 {
-    "check_ins": []
+  "check_ins": [
+    {
+      "id": "20251124_212643",
+      "timestamp": "2025-11-24T21:26:43.613719",
+      "user_name": "Pankaj Adav",
+      "mood": "nice and good",
+      "energy": "good",
+      "objectives": [
+        "get some exercise and choose a course before midnight"
+      ],
+      "stressors": "no",
+      "summary": "Feeling nice and good with good energy. Goals: get some exercise and choose a course before midnight"
+    },
+    {
+      "id": "20251124_212959",
+      "timestamp": "2025-11-24T21:29:59.426932",
+      "user_name": "Pankaj",
+      "mood": "nice and good",
+      "energy": "good",
+      "objectives": [
+        "go to exercise"
+      ],
+      "stressors": null,
+      "summary": "Feeling nice and good with good energy. Goals: go to exercise"
+    }
+  ]
 }
