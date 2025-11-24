@@ -1,0 +1,32 @@
+[
+    {
+        "id": "variables",
+        "title": "Variables",
+        "summary": "Variables are containers that store values in programming. Think of them as labeled boxes where you can put information and retrieve it later. Variables have a name and can hold different types of data like numbers, text, or true/false values. They're essential because they let you reuse values throughout your code without repeating yourself. For example, you might store a user's name in a variable once and use it multiple times in your program.",
+        "sample_question": "What is a variable and why is it useful in programming?"
+    },
+    {
+        "id": "loops",
+        "title": "Loops",
+        "summary": "Loops are programming structures that let you repeat an action multiple times without writing the same code over and over. There are two main types: for loops and while loops. A for loop repeats a specific number of times, like counting from 1 to 10. A while loop keeps repeating as long as a certain condition is true, like asking for input until the user enters a valid answer. Loops save time and make your code more efficient.",
+        "sample_question": "Explain the difference between a for loop and a while loop."
+    },
+    {
+        "id": "functions",
+        "title": "Functions",
+        "summary": "Functions are reusable blocks of code that perform a specific task. You can think of them as mini-programs within your program. Functions take inputs called parameters, do some work, and often return a result. They help organize code, reduce repetition, and make programs easier to understand and maintain. For example, you might create a function to calculate the area of a rectangle that takes length and width as inputs.",
+        "sample_question": "What is a function and why would you use one?"
+    },
+    {
+        "id": "conditionals",
+        "title": "Conditionals",
+        "summary": "Conditionals, also known as if-then-else statements, let your program make decisions. They check whether a condition is true or false and execute different code based on the result. For instance, if a user is logged in, you might show their profile; otherwise, you show a login screen. Conditionals are fundamental to creating programs that respond differently to different situations.",
+        "sample_question": "How do conditionals help programs make decisions?"
+    },
+    {
+        "id": "arrays",
+        "title": "Arrays and Lists",
+        "summary": "Arrays or lists are collections that store multiple values in a single variable. Instead of creating separate variables for each item, you can group related data together. For example, instead of having name1, name2, name3, you can have one names array containing all names. You can access items by their position (called an index), add new items, remove items, and loop through all items easily. They're perfect for handling sets of data.",
+        "sample_question": "What are arrays and when would you use them instead of individual variables?"
+    }
+]
